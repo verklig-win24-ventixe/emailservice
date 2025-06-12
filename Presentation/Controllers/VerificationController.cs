@@ -6,7 +6,7 @@ namespace Presentation.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class EventsController(IVerificationService verificationService) : ControllerBase
+public class VerificationController(IVerificationService verificationService) : ControllerBase
 {
   private readonly IVerificationService _verificationService = verificationService;
 
