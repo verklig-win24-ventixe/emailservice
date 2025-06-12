@@ -4,6 +4,8 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Presentation.Interfaces;
+using Presentation.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -14,14 +16,10 @@ var keyVaultUrl = "https://verklig-ventixe-keyvault.vault.azure.net/";
 builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 
 var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-KeyVaultSecret dbSecret = await client.GetSecretAsync("DbConnectionString-Ventixe");
 KeyVaultSecret acsSecret = await client.GetSecretAsync("ACSConnectionString-Ventixe");
-KeyVaultSecret acsSenderSecret = await client.GetSecretAsync("ACSSenderAddress-Ventixe");
 KeyVaultSecret jwtKeySecret = await client.GetSecretAsync("JwtPublicKey");
 KeyVaultSecret issuerSecret = await client.GetSecretAsync("JwtIssuer");
 KeyVaultSecret audienceSecret = await client.GetSecretAsync("JwtAudience");
-
-// builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(dbSecret.Value));
 
 var rsa = RSA.Create();
 rsa.ImportFromPem(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(jwtKeySecret.Value)));
@@ -43,6 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 });
 
 builder.Services.AddSingleton(x => new EmailClient(acsSecret.Value));
+builder.Services.AddTransient<IVerificationService, VerificationService>();
 
 var app = builder.Build();
 app.MapOpenApi();
