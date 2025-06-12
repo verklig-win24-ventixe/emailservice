@@ -40,7 +40,7 @@ public class VerificationService(EmailClient emailClient, IConfiguration config)
     }
     catch (Exception ex)
     {
-      return new VerificationServiceResult { Succeeded = false, Error = $"Failed to send email: {ex.Message}" };
+      return new VerificationServiceResult { Succeeded = false, Error = $"Failed to send email: {ex.ToString()}" };
     }
   }
 }
